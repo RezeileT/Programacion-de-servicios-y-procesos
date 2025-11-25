@@ -37,9 +37,6 @@ class GestorClienteContador implements Runnable {
 
                 pw.println(respuesta);
 
-                if (comando.equals("bye")) {
-                    break;  // Cierra conexión después de responder "Adiós"
-                }
             }
         } catch (IOException e) {
             System.err.println(nombre + " Error en conexión: " + e.getMessage());
