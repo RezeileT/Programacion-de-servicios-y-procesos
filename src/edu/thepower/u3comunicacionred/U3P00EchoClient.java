@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class U3P00EchoClient {
     public static void main(String[] args) throws IOException {
-        try (Socket socket = new Socket("10.0.0.17", 8000)){
+        try (Socket socket = new Socket("localhost", 4000)){
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
             BufferedReader bf = new BufferedReader(new InputStreamReader(in));
