@@ -5,12 +5,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class GestorClienteContador implements Runnable {
+class GestorClienteContadorAtomic implements Runnable {
 
     private static final AtomicInteger contador = new AtomicInteger(0);
     private final Socket socket;
 
-    public GestorClienteContador(Socket socket) {
+    public GestorClienteContadorAtomic(Socket socket) {
         this.socket = socket;
     }
 
@@ -28,9 +28,9 @@ class GestorClienteContador implements Runnable {
                 System.out.println(nombre + " Recibido de cliente: " + comando);
 
                 String respuesta = switch (comando) {
-                    case "inc" -> String.valueOf(contador.incrementAndGet());
-                    case "dec" -> String.valueOf(contador.decrementAndGet());
-                    case "get" -> String.valueOf(contador.get());
+                    case "inc" -> "Incrementando contador en uno, valor actual: " + contador.incrementAndGet();
+                    case "dec" -> "Decrementando contador en uno, valor actual: " + contador.decrementAndGet();
+                    case "get" -> "Valor actual del contador: " + contador.get();
                     case "bye" -> "Adiós";
                     default -> "Comando no válido";
                 };
@@ -49,7 +49,7 @@ class GestorClienteContador implements Runnable {
     }
 }
 
-public class U3P04ContadorServer {
+public class U3P04ContadorServerAtomic {
 
     public static void main(String[] args) {
         int puerto = 0;
@@ -63,7 +63,7 @@ public class U3P04ContadorServer {
             System.out.println("Servidor iniciado; esperando conexiones en puerto: " + puerto);
             while (true) {
                 Socket socket = servidor.accept();
-                Thread t = new Thread(new GestorClienteContador(socket));
+                Thread t = new Thread(new GestorClienteContadorAtomic(socket));
                 t.start();
             }
         } catch (IOException e) {
