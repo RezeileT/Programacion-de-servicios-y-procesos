@@ -30,11 +30,14 @@ public class U5E03ControlExcepcionesSegura {
         } catch (NumberFormatException e) {
             System.err.println("Opción no permitida");
         } catch (IOException e) {
-            System.err.println("ERROR [ERR_ES] Recurso no existe");
+            System.err.println("ERROR [ERR_ES] No se puede acceder al recurso");
             LOG.log(Level.WARNING, "Error al localizar el recurso " + option + ": " + e.getMessage());
         } catch (IllegalArgumentException e) {
             System.err.println("ERROR [ERR_INPUT] Solicitud invalida");
             LOG.log(Level.INFO, "Error al localizar recurso " + option + ": " + e.getMessage());
+        } catch (RuntimeException e) {
+            System.err.println("ERROR [ERR_UNKNOWN] Error desconocido");
+            LOG.log(Level.SEVERE, "Error inesperado en la ejecución" + option + ": " + e.getMessage(), e);
         }
         sc.close();
     }
@@ -87,7 +90,7 @@ public class U5E03ControlExcepcionesSegura {
 
             // Simula BD caída
 
-            throw new IOException("No se puede conectar a la BD en localhost:5432");
+            throw new IOException("No se puede conectar a la BD");
 
 
 
