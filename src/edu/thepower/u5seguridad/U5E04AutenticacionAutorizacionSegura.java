@@ -17,12 +17,15 @@ public class U5E04AutenticacionAutorizacionSegura {
         int passwordValue;
         int salt;
         Rol rol;          // "ADMIN" o "USER"
+        boolean blocked;
+        int contador = 0;
 
         public User(String username, String password, Rol rol) {
             this.username = username;
             this.rol = rol;
             this.salt = getSalt();
             this.passwordValue = getPasswordValue(password, salt);
+            this.blocked = false;
         }
 
         private static int getSalt() {
@@ -57,13 +60,24 @@ public class U5E04AutenticacionAutorizacionSegura {
         }
 
         public Sesion login(String username, String password) {
+            final int MAX_INTENTOS = 2;
             Sesion sesion = null;
             User user = users.get(username);
             if (user != null) {
-                if (user.checkPassword(password)) {
-                    sesion = new Sesion(username, user.rol);
-                } else {
-                    System.out.println(CREDENCIALES_INCORRECTAS);
+                if (!user.blocked) {
+                    if (user.checkPassword(password)) {
+                        user.contador = 0;
+                        sesion = new Sesion(username, user.rol);
+                    } else {
+                        user.contador++;
+                        if (user.contador > MAX_INTENTOS) {
+                            user.blocked = true;
+                            System.out.println("Usuario bloqueado");
+                        }
+                        System.out.println(CREDENCIALES_INCORRECTAS);
+                    }
+                } else{
+                    System.out.println("El usuario esta bloqueado. Contacta con un administrador");
                 }
             } else {
                 System.out.println(CREDENCIALES_INCORRECTAS);
