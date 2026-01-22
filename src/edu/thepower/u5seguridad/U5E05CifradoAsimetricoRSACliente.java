@@ -22,34 +22,34 @@ public class U5E05CifradoAsimetricoRSACliente {
 
     public static void main(String[] args) {
         try {
-            //Acceder al certificado en resources
-            CertificateFactory cf = CertificateFactory.getInstance("x.509");
+            // 1. Acceder al certificado almacenado en servidor.crt
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
             Certificate cert;
             try (FileInputStream fis = new FileInputStream(NOMBRE_CERTIFICADO)) {
                 cert = cf.generateCertificate(fis);
             }
-            LOG.info("Se ha accedido al certificado");
+            LOG.info("Se ha accedido al certificado.");
 
-            //Acceder a la clave publica
+            // 2. Extraer la clave pública del certificado
             PublicKey pk = cert.getPublicKey();
-            LOG.info("Clave publica obtenida");
+            LOG.info("Obtenida clave pública.");
 
-            //Mensaje a cifrar
-            String msg = "Never gonna give you up";
-            byte[] textoPlano = msg.getBytes();
+            // 3. Creación del mensaje a cifrar
+            String text = "lo que queráis, escribid lo que os de la gana";
+            byte[] textoPlano = text.getBytes();
 
-            //Cifrado del mensaje
+            // 4. Cifrado del mensaje
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, pk);
             byte[] textoCifrado = cipher.doFinal(textoPlano);
-            LOG.info("Texto cifrado");
+            LOG.info("Mensaje cifrado.");
 
-            //Guardamos en disco
-            try(FileOutputStream fos = new FileOutputStream(ARCHIVO_CIFRADO)) {
+            // 5. Guardamos en disco el mensaje cifrado
+            try (FileOutputStream fos = new FileOutputStream(ARCHIVO_CIFRADO)) {
                 fos.write(textoCifrado);
             }
-            LOG.info("Mensaje cifrado y guardado");
-            System.out.println("El mensaje ha sido cifrado y almacenado");
+            LOG.info("Mensaje cifrado y almacenado.");
+            System.out.println("El mensaje ha sido cifrado y almacenado en el archivo " + ARCHIVO_CIFRADO);
         } catch (CertificateException | IOException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeyException e) {

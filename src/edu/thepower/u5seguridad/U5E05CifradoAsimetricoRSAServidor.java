@@ -15,70 +15,71 @@ import java.security.cert.CertificateException;
 import java.util.logging.Logger;
 
 public class U5E05CifradoAsimetricoRSAServidor {
-    private static final Logger LOG = Logger.getLogger(U5E05CifradoAsimetricoRSACliente.class.getName());
-    private static final String NOMBRE_CERTIFICADO = "resources/servidor.jks";
-    private static final String ARCHIVO_CIFRADO = "resources/salida.bin";
+    private static final Logger LOG = Logger.getLogger(U5E05CifradoAsimetricoRSAServidor.class.getName());
+    private static String ALMACEN_CLAVES = "resources/servidor.jks";
+    private static String ARCHIVO_CIFRADO = "resources/salida.bin";
     private static char[] STORE_PASS = "changeit".toCharArray();
     private static String KEY_ALIAS = "servidor";
-    private static char[] KEY_PASS = "servidor".toCharArray();
+    private static char[] KEY_PASS = "changeit".toCharArray();
 
     public static void main(String[] args) {
-        //Acceder al almacén de claves
-        try{
+        try {
+            // 1. Acceder al almacén de claves (servidor.jks)
             KeyStore ks = KeyStore.getInstance("JKS");
-            try(FileInputStream fis = new FileInputStream(NOMBRE_CERTIFICADO)){
+            try (FileInputStream fis = new FileInputStream(ALMACEN_CLAVES)) {
                 ks.load(fis, STORE_PASS);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-                throw new RuntimeException(e);
-            }
-            LOG.info("Accedido al almacén de claves");
-
-            //Obtener clave privada
-            Key key = ks.getKey(KEY_ALIAS, STORE_PASS);
-            if (!(key instanceof PrivateKey)){
-                throw new IllegalStateException("La clave recuperada no es una clave privada");
-            }
-            key = (PrivateKey)key;
-            LOG.info("Clave recuperada");
-
-            //Recuperamos mensaje cifrado en disco
-            byte[] textoCifrado;
-            try (FileInputStream fis = new FileInputStream(ARCHIVO_CIFRADO)){
-                textoCifrado = fis.readAllBytes();
-            } catch (FileNotFoundException e) {
+            } catch (CertificateException e) {
                 throw new RuntimeException(e);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
             }
-            LOG.info("Mensaje leído");
+            LOG.info("Se ha accedido al almacén de claves.");
 
-            //Recibimos el mensaje
-            Cipher cipher = Cipher.getInstance("RSA/PKCS1Padding");
+            // 2. Obtener clave privada
+            Key key = ks.getKey(KEY_ALIAS, KEY_PASS);
+            if (!(key instanceof PrivateKey)) {
+                throw new IllegalStateException("La clave recuperada no es una clave privada.");
+            }
+            key = (PrivateKey) key;
+            LOG.info("Clave privada recuperada.");
+
+            // 3. Recuperamos el mensaje cifrado en disco
+            byte[] textoCifrado;
+            try (FileInputStream fis = new FileInputStream(ARCHIVO_CIFRADO)) {
+                textoCifrado = fis.readAllBytes();
+            }
+            LOG.info("Mensaje cifrado leído.");
+
+            // 4. Desciframos el mensaje usando la clave privada
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.DECRYPT_MODE, key);
             byte[] textoPlano = cipher.doFinal(textoCifrado);
-            LOG.info("Mensaje descifrado");
+            LOG.info("Mensaje descifrado.");
 
-            //Mostramos el mensaje
+            // 5. Mostramos el mensaje descrifrado al usuario
             String texto = new String(textoPlano);
-            System.out.println(texto);
+            System.out.println("Texto descifrado: \n" + texto);
+
         } catch (KeyStoreException e) {
             throw new RuntimeException(e);
-        } catch (UnrecoverableKeyException e) {
+        } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (UnrecoverableKeyException e) {
+            throw new RuntimeException(e);
         } catch (NoSuchPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (IllegalBlockSizeException e) {
             throw new RuntimeException(e);
         } catch (BadPaddingException e) {
             throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
         }
     }
-
-
 }
